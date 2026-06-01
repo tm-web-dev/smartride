@@ -33,7 +33,7 @@ export default async function ReceiptPage({
         </p>
 
         <p className="text-xs opacity-90">
-          Government Transport Department
+          Himachal Road Transport Corporation
         </p>
       </div>
 
