@@ -36,12 +36,9 @@ import { loginSchema } from "@/schema/loginSchema";
 export default function Page() {
   const router = useRouter();
 
-  const [isSubmitting, setIsSubmitting] =
-    useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const form = useForm<
-    z.infer<typeof loginSchema>
-  >({
+  const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
 
     defaultValues: {
@@ -50,33 +47,24 @@ export default function Page() {
     },
   });
 
-  const onSubmit = async (
-    data: z.infer<typeof loginSchema>
-  ) => {
+  const onSubmit = async (data: z.infer<typeof loginSchema>) => {
     setIsSubmitting(true);
 
     try {
       // Login
-      const result = await signIn(
-        "credentials",
-        {
-          email: data.email,
-          password: data.password,
+      const result = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
 
-          redirect: false,
-        }
-      );
+        redirect: false,
+      });
 
       // Handle errors
       if (result?.error) {
         let message = result.error;
 
-        if (
-          result.error ===
-          "EMAIL_NOT_VERIFIED"
-        ) {
-          message =
-            "Please verify your email before logging in.";
+        if (result.error === "EMAIL_NOT_VERIFIED") {
+          message = "Please verify your email before logging in.";
         }
 
         toast.error("Login failed", {
@@ -91,9 +79,7 @@ export default function Page() {
       const session = await getSession();
 
       if (!session?.user) {
-        toast.error(
-          "Failed to retrieve session"
-        );
+        toast.error("Failed to retrieve session");
         return;
       }
 
@@ -109,15 +95,12 @@ export default function Page() {
         return;
       }
 
-      if (role === "approver") {
-        router.replace("/approver");
+      if (role === "staff") {
+        router.replace("/applications");
         return;
       }
 
-      if (role === "dispatcher") {
-        router.replace("/dispacher");
-        return;
-      }
+      router.replace("/dashboard");
 
       // Default user
       router.replace("/dashboard");
@@ -131,25 +114,16 @@ export default function Page() {
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-background text-foreground">
       <div className="bg-card border border-border p-8 rounded-xl shadow-md w-full space-y-6 max-w-md">
-        <h2 className="text-2xl font-bold text-center">
-          Sign In
-        </h2>
+        <h2 className="text-2xl font-bold text-center">Sign In</h2>
 
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(
-              onSubmit
-            )}
-            className="space-y-4"
-          >
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>
-                    Email
-                  </FormLabel>
+                  <FormLabel>Email</FormLabel>
 
                   <FormControl>
                     <Input
@@ -169,9 +143,7 @@ export default function Page() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>
-                    Password
-                  </FormLabel>
+                  <FormLabel>Password</FormLabel>
 
                   <FormControl>
                     <Input
@@ -186,17 +158,10 @@ export default function Page() {
               )}
             />
 
-            <Button
-              className="w-full"
-              type="submit"
-              disabled={isSubmitting}
-            >
+            <Button className="w-full" type="submit" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
-                  <Loader2
-                    className="animate-spin mr-2"
-                    size={16}
-                  />
+                  <Loader2 className="animate-spin mr-2" size={16} />
                   Signing In...
                 </>
               ) : (
@@ -209,10 +174,7 @@ export default function Page() {
         <div>
           <p className="text-sm text-center text-muted-foreground">
             Don't have an account?{" "}
-            <Link
-              href="/sign-up"
-              className="text-primary hover:underline"
-            >
+            <Link href="/sign-up" className="text-primary hover:underline">
               Sign Up
             </Link>
           </p>

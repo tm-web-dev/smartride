@@ -96,19 +96,17 @@ export default function DashboardPage() {
               <span
                 className={`text-xs font-semibold capitalize ${getStatusColor(application.status, isPaid)}`}
               >
-                {
-  !isPaid
-    ? "Payment Pending"
-    : application.status === "pending"
-    ? "Waiting for Approval"
-    : application.status === "approved"
-    ? "Approved"
-    : application.status === "rejected"
-    ? "Rejected"
-    : application.status === "dispatched"
-    ? "Card Dispatched"
-    : application.status
-}
+                {!isPaid
+                  ? "Payment Pending"
+                  : application.status === "pending"
+                    ? "Waiting for Approval"
+                    : application.status === "approved"
+                      ? "Approved"
+                      : application.status === "rejected"
+                        ? "Rejected"
+                        : application.status === "dispatched"
+                          ? "Card Dispatched"
+                          : application.status}
               </span>
             </div>
 
@@ -123,11 +121,32 @@ export default function DashboardPage() {
                 {new Date(application.createdAt).toLocaleDateString()}
               </p>
 
-              {application.validTill && (
-                <p>
-                  <span className="font-medium">Valid Till:</span>{" "}
-                  {new Date(application.validTill).toLocaleDateString()}
+              {application.status !== "rejected" &&
+                application.status !== "pending" &&
+                application.validTill && (
+                  <p>
+                    <span className="font-medium">Valid Till:</span>{" "}
+                    {new Date(application.validTill).toLocaleDateString()}
+                  </p>
+                )}
+
+              {application.status === "pending" && (
+                <p className="text-amber-600">
+                  Card validity will be assigned after approval.
                 </p>
+              )}
+
+              {application.status === "rejected" && (
+                <div className="border border-red-200 bg-red-50 rounded-xl p-4 mt-2">
+                  <h3 className="font-semibold text-red-700 mb-2">
+                    Application Rejected
+                  </h3>
+
+                  <p className="text-sm text-red-600">
+                    {application.rejectionReason ||
+                      "No rejection reason provided"}
+                  </p>
+                </div>
               )}
             </div>
 
@@ -135,18 +154,28 @@ export default function DashboardPage() {
             <div className="pt-4 flex gap-3">
               {isPaid ? (
                 <>
-                  <Button
-                    className="flex gap-2 text-sm h-10 rounded-xl"
-                    asChild
-                  >
-                    <Link
-                      href={`/api/application/download-pdf/${application._id}`}
-                      target="_blank"
+                  {application.status === "rejected" ? (
+                    <Button asChild>
+                      <Link
+                        href={`/dashboard/application/edit/${application._id}`}
+                      >
+                        Edit & Resubmit Application
+                      </Link>
+                    </Button>
+                  ) : (
+                    <Button
+                      className="flex gap-2 text-sm h-10 rounded-xl"
+                      asChild
                     >
-                      <FileDown size={16} />
-                      Download Receipt PDF
-                    </Link>
-                  </Button>
+                      <Link
+                        href={`/api/application/download-pdf/${application._id}`}
+                        target="_blank"
+                      >
+                        <FileDown size={16} />
+                        Download Receipt PDF
+                      </Link>
+                    </Button>
+                  )}
                 </>
               ) : (
                 /* Shown ONLY if the application's payment is still pending or failed */

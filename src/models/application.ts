@@ -11,6 +11,7 @@ export type ApplicationStatus =
   | "pending"
   | "approved"
   | "rejected"
+  | "printed"
   | "dispatched"
   | "delivered";
 
@@ -24,6 +25,20 @@ export interface Application
   userId: mongoose.Types.ObjectId;
 
   applicationNumber: string;
+  approvedBy?: mongoose.Types.ObjectId;
+approvedAt?: Date;
+
+rejectedBy?: mongoose.Types.ObjectId;
+rejectedAt?: Date;
+
+printedBy?: mongoose.Types.ObjectId;
+printedAt?: Date;
+
+dispatchedBy?: mongoose.Types.ObjectId;
+dispatchedAt?: Date;
+
+deliveredBy?: mongoose.Types.ObjectId;
+deliveredAt?: Date;
 
   // Snapshot of user data
   fullName: string;
@@ -55,17 +70,14 @@ export interface Application
   applicationFee: number;
   paymentStatus: PaymentStatus;
 
-  paymentId?: string;
-  paymentDate?: Date;
-
-  paymentFailureReason: {
-  type: String,
-  default: null,
-},
+ paymentId?: string;
+paymentDate?: Date;
+paymentFailureReason?: string;
 
   // Validity
   validFrom?: Date;
   validTill?: Date;
+  rejectionReason?: string;
 
   // Renewal
   isRenewal: boolean;
@@ -178,14 +190,15 @@ const ApplicationSchema =
       status: {
         type: String,
         enum: [
-          "draft",
-          "payment_pending",
-          "pending",
-          "approved",
-          "rejected",
-          "dispatched",
-          "delivered",
-        ],
+  "draft",
+  "payment_pending",
+  "pending",
+  "approved",
+  "rejected",
+  "printed",
+  "dispatched",
+  "delivered",
+],
         default: "draft",
         index: true,
       },
@@ -197,22 +210,23 @@ const ApplicationSchema =
       },
 
       paymentStatus: {
-        type: String,
-        enum: [
-          "pending",
-          "paid",
-          "failed",
-        ],
-        default: "pending",
-      },
-      paymentFailureReason: {
+  type: String,
+  enum: [
+    "pending",
+    "paid",
+    "failed",
+  ],
+  default: "pending",
+},
+
+paymentFailureReason: {
   type: String,
   default: null,
 },
 
-      paymentId: {
-        type: String,
-      },
+paymentId: {
+  type: String,
+},
 
       paymentDate: {
         type: Date,
@@ -226,7 +240,53 @@ const ApplicationSchema =
       validTill: {
         type: Date,
       },
+approvedBy: {
+  type: Schema.Types.ObjectId,
+  ref: "User",
+},
 
+approvedAt: {
+  type: Date,
+},
+
+rejectedBy: {
+  type: Schema.Types.ObjectId,
+  ref: "User",
+},
+
+rejectedAt: {
+  type: Date,
+},
+rejectionReason: {
+  type: String,
+  default: null,
+},
+printedBy: {
+  type: Schema.Types.ObjectId,
+  ref: "User",
+},
+
+printedAt: {
+  type: Date,
+},
+
+dispatchedBy: {
+  type: Schema.Types.ObjectId,
+  ref: "User",
+},
+
+dispatchedAt: {
+  type: Date,
+},
+
+deliveredBy: {
+  type: Schema.Types.ObjectId,
+  ref: "User",
+},
+
+deliveredAt: {
+  type: Date,
+},
       // Renewal tracking
       isRenewal: {
         type: Boolean,

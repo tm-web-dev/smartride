@@ -12,7 +12,7 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <div className="px-4 w-full py-6 ">
+    <div className="px-4 w-full py-6 h-screen overflow-y-auto">
 
       <ul className="space-y-2">
         {menu.map((item) => {

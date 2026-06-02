@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document, models, model } from "mongoose";
 
 export type Gender = "male" | "female" | "other";
-export type Role = "user" | "approver" | "dispatcher" | "admin";
+export type Role = "user" | "staff"| "admin";
 
 export interface User extends Document {
     name: string;
@@ -121,7 +121,7 @@ const UserSchema = new Schema<User>(
         // Role-based access
         role: {
             type: String,
-            enum: ["user", "approver", "dispatcher", "admin"],
+            enum: ["user", "staff", "admin"],
             default: "user",
         },
 

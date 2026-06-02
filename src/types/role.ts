@@ -1,2 +1,2 @@
 // types/role.ts
-export type Role = "user" | "approver" | "dispatcher" | "admin";
+export type Role = "user" | "staff" | "admin";

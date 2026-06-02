@@ -31,14 +31,14 @@ export async function GET() {
     }
 
     const application =
-      await ApplicationModel.findOne(
-        {
-          userId:
-            session.user.id,
-        }
-      ).sort({
-        createdAt: -1,
-      });
+  await ApplicationModel.findOne(
+    {
+      userId: session.user.id,
+    }
+  ).sort({
+    createdAt: -1,
+  });
+
 
     return NextResponse.json(
       {

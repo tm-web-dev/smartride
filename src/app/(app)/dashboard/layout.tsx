@@ -1,7 +1,7 @@
 import Sidebar from "@/components/dashboard/sidebar";
+import MobileSidebar from "@/components/dashboard/mobile-sidebar";
 
 import { getServerSession } from "next-auth";
-
 import { redirect } from "next/navigation";
 
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
@@ -27,18 +27,29 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen flex bg-background text-foreground">
+    <div className="min-h-screen flex bg-background">
 
-      {/* Sidebar */}
-      <aside className="w-72 border-r bg-card sticky top-0 h-screen">
+      {/* Desktop Sidebar */}
+      <aside className="hidden md:block w-72 border-r bg-card">
         <Sidebar />
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">
-        <div className="max-w-6xl mx-auto p-6">
+      {/* Content */}
+      <main className="flex-1">
+
+        {/* Mobile Header */}
+        <div className="md:hidden border-b p-4 flex items-center gap-3">
+          <MobileSidebar />
+
+          <h1 className="font-semibold">
+            SmartRide
+          </h1>
+        </div>
+
+        <div className="max-w-6xl mx-auto p-4 md:p-6">
           {children}
         </div>
+
       </main>
 
     </div>
