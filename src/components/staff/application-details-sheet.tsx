@@ -50,7 +50,7 @@ export default function ApplicationDetailsSheet({
       >
         <DialogContent
   className="
-    !max-w-[1400px]
+    !max-w-350!
     w-[95vw]
     h-[92vh]
     overflow-y-auto
@@ -168,7 +168,7 @@ export default function ApplicationDetailsSheet({
                     height={600}
                     className="
                       w-full
-                      h-[350px]
+                      h-87.5
                       rounded-xl
                       border
                       object-cover
@@ -188,7 +188,7 @@ export default function ApplicationDetailsSheet({
                     height={250}
                     className="
                       w-full
-                      h-[350px]
+                      h-87.5
                       rounded-xl
                       border
                       bg-white

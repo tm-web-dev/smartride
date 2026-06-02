@@ -1,8 +1,5 @@
 "use client";
-import {
-  useParams,
-  useRouter,
-} from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,24 +26,21 @@ import {
   ApplicationFormType,
 } from "@/schema/applicationSchema";
 
-
-
 export default function ApplyPage() {
   const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
 
-
+  const [application, setApplication] = useState<any>(null);
+  const [pageLoading, setPageLoading] = useState(true);
 
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [uploadingSignature, setUploadingSignature] = useState(false);
   const [uploadingAadhar, setUploadingAadhar] = useState(false);
   const params = useParams();
 
-const router = useRouter();
+  const router = useRouter();
 
-const id = params.id as string;
-
-
+  const id = params.id as string;
 
   const {
     register,
@@ -61,8 +55,7 @@ const id = params.id as string;
   const photoUrl = watch("photoUrl");
   const signatureUrl = watch("signatureUrl");
   const aadharDocumentUrl = watch("aadharDocumentUrl");
-  const selectedGender =
-  watch("gender");
+  const selectedGender = watch("gender");
 
   // Sync disabled profile details directly from auth context session safely
   useEffect(() => {
@@ -71,81 +64,41 @@ const id = params.id as string;
     if (session?.user?.email)
       setValue("email", session.user.email, { shouldValidate: true });
   }, [session, setValue]);
-useEffect(() => {
-  const loadApplication =
-    async () => {
+  useEffect(() => {
+    const loadApplication = async () => {
       try {
-        const res =
-          await axios.get(
-            `/api/application/${id}`
-          );
+        const res = await axios.get(`/api/application/${id}`);
 
-        const app =
-          res.data.application;
+        const app = res.data.application;
 
         setApplication(app);
 
-        setValue(
-          "phone",
-          app.phone
-        );
-
-        setValue(
-          "address",
-          app.address
-        );
-
-        setValue(
-          "district",
-          app.district
-        );
-
-        setValue(
-          "pinCode",
-          app.pinCode
-        );
-
-        setValue(
-          "gender",
-          app.gender
-        );
-
+        setValue("phone", app.phone);
+        setValue("address", app.address);
+        setValue("district", app.district);
+        setValue("pinCode", app.pinCode);
+        setValue("gender", app.gender);
         setValue(
           "dateOfBirth",
-          app.dateOfBirth
-            .split("T")[0]
+          app.dateOfBirth ? app.dateOfBirth.split("T")[0] : "",
         );
-
-        setValue(
-          "aadharNumber",
-          app.aadharNumber
-        );
-
-        setValue(
-          "photoUrl",
-          app.photoUrl
-        );
-
-        setValue(
-          "signatureUrl",
-          app.signatureUrl
-        );
-
-        setValue(
-          "aadharDocumentUrl",
-          app.aadharDocumentUrl
-        );
+        setValue("aadharNumber", app.aadharNumber);
+        setValue("photoUrl", app.photoUrl);
+        setValue("signatureUrl", app.signatureUrl);
+        setValue("aadharDocumentUrl", app.aadharDocumentUrl);
       } catch (error) {
         console.error(error);
+
+        toast.error("Failed to load application");
+      } finally {
+        setPageLoading(false);
       }
     };
 
-  loadApplication();
-}, [id]);
-
- 
-
-  
+    if (id) {
+      loadApplication();
+    }
+  }, [id, setValue]);
 
   const uploadFile = async (file: File, folder: string) => {
     const formData = new FormData();
@@ -156,38 +109,33 @@ useEffect(() => {
     return response.data.url;
   };
 
-const onResubmit = async (
-  data: ApplicationFormType
-) => {
-  try {
-    setLoading(true);
+  const onResubmit = async (data: ApplicationFormType) => {
+    try {
+      setLoading(true);
 
-    await axios.put(
-      `/api/application/resubmit/${id}`,
-      data
-    );
+      await axios.put(`/api/application/resubmit/${id}`, data);
 
-    toast.success(
-      "Application Resubmitted",
-      {
-        description:
-          "Your application has been sent for review again.",
-      }
-    );
+      toast.success("Application Resubmitted", {
+        description: "Your application has been sent for review again.",
+      });
 
-    router.push(
-      "/dashboard"
-    );
-  } catch (error) {
-    console.error(error);
+      router.push("/dashboard");
+    } catch (error) {
+      console.error(error);
 
-    toast.error(
-      "Failed To Resubmit"
+      toast.error("Failed To Resubmit");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (pageLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
     );
-  } finally {
-    setLoading(false);
   }
-};
 
   return (
     <div className="w-full min-h-screen bg-muted/30 py-12 px-4 sm:px-6 lg:px-8 flex justify-center items-start">
@@ -195,20 +143,26 @@ const onResubmit = async (
         {/* HEADER */}
         <div className="border-b px-6 md:px-16 py-10 md:py-12">
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-card-foreground">
-            Bus Concession Application
+            Edit & Resubmit Application
           </h1>
           <p className="text-muted-foreground mt-3 text-[15px] leading-7">
-            Fill in all details carefully, upload files, and save your draft to
-            unlock checkout payments.
+            Your application was returned for corrections. Please review the rejection reason below, update the required information, and resubmit your application for verification. No additional payment is required.
           </p>
         </div>
+        {application?.rejectionReason && (
+          <div className="mb-4 mx-4 mt-4 rounded-lg border border-red-300 bg-red-50 px-4 py-2">
+            <p className="text-sm font-medium text-red-700">Rejection Reason</p>
 
+            <p className="text-sm text-red-600">
+              {application.rejectionReason}
+            </p>
+          </div>
+        )}
         {/* FORM */}
         <form
-  onSubmit={handleSubmit(
-    onResubmit
-  )}
->
+          onSubmit={handleSubmit(onResubmit)}
+          className="px-6 md:px-16 py-10"
+        >
           {/* Hidden inputs to pass required background schema keys to onSubmit */}
           <input type="hidden" {...register("fullName")} />
           <input type="hidden" {...register("email")} />
@@ -217,13 +171,13 @@ const onResubmit = async (
           <input type="hidden" {...register("aadharDocumentUrl")} />
 
           {/* PERSONAL INFO */}
-          <section className="space-y-12">
+          <section className="space-y-12 mb-4">
             <div className="space-y-3">
               <h2 className="text-2xl font-semibold text-card-foreground">
                 Personal Information
               </h2>
               <p className="text-muted-foreground text-sm">
-                Enter your personal and address details.
+                Review and update your personal and address details before resubmitting.
               </p>
             </div>
 
@@ -275,18 +229,26 @@ const onResubmit = async (
 
               <div className="space-y-4 relative z-50">
                 <Label className="text-sm font-medium pl-1">Gender</Label>
-               <Select
-  value={selectedGender}
-  onValueChange={(value) =>
-    setValue(
-      "gender",
-      value as any,
-      {
-        shouldValidate: true,
-      }
-    )
-  }
-></Select>
+                <Select
+                  value={selectedGender}
+                  onValueChange={(value) =>
+                    setValue("gender", value as any, {
+                      shouldValidate: true,
+                    })
+                  }
+                >
+                  <SelectTrigger className="h-13 rounded-2xl">
+                    <SelectValue placeholder="Select Gender" />
+                  </SelectTrigger>
+
+                  <SelectContent>
+                    <SelectItem value="male">Male</SelectItem>
+
+                    <SelectItem value="female">Female</SelectItem>
+
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
                 {errors.gender && (
                   <p className="text-sm text-red-500 pl-1">
                     {errors.gender.message}
@@ -376,14 +338,14 @@ const onResubmit = async (
           <section className="space-y-12 border-t pt-14">
             <div className="space-y-3">
               <h2 className="text-2xl font-semibold text-card-foreground">
-                Upload Documents
+                Supporting Documents
               </h2>
               <p className="text-muted-foreground text-sm">
-                Upload files directly to secure cloud storage.
+                Review your uploaded documents and replace any files that need correction.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-4">
               {/* PHOTO */}
               <div
                 className={`rounded-3xl border p-8 space-y-8 flex flex-col justify-between ${photoUrl ? "border-green-500 bg-green-50/10" : "bg-muted/20"}`}
@@ -413,13 +375,18 @@ const onResubmit = async (
                     onChange={async (e) => {
                       const file = e.target.files?.[0];
                       if (!file) return;
+
                       try {
                         setUploadingPhoto(true);
+
                         const url = await uploadFile(
                           file,
                           "applications/photos",
                         );
-                        setValue("photoUrl", url, { shouldValidate: true });
+
+                        setValue("photoUrl", url, {
+                          shouldValidate: true,
+                        });
                       } catch (error) {
                         alert("Photo upload failed");
                       } finally {
@@ -428,6 +395,19 @@ const onResubmit = async (
                     }}
                     className="h-12 rounded-xl cursor-pointer"
                   />
+
+                  <div className="mt-4 h-32 justify-center items-center flex">
+                    {photoUrl && (
+                      <>
+                        <img
+                          src={photoUrl}
+                          alt="Applicant Photo"
+                          className="h-24 w-24 rounded-lg object-cover border"
+                        />
+                      </>
+                    )}
+                  </div>
+
                   {errors.photoUrl && (
                     <p className="text-xs text-red-500 mt-2 pl-1">
                       {errors.photoUrl.message}
@@ -465,13 +445,18 @@ const onResubmit = async (
                     onChange={async (e) => {
                       const file = e.target.files?.[0];
                       if (!file) return;
+
                       try {
                         setUploadingSignature(true);
+
                         const url = await uploadFile(
                           file,
                           "applications/signatures",
                         );
-                        setValue("signatureUrl", url, { shouldValidate: true });
+
+                        setValue("signatureUrl", url, {
+                          shouldValidate: true,
+                        });
                       } catch (error) {
                         alert("Signature upload failed");
                       } finally {
@@ -480,6 +465,17 @@ const onResubmit = async (
                     }}
                     className="h-12 rounded-xl cursor-pointer"
                   />
+
+                  <div className="mt-4 h-32 flex items-center justify-center">
+                    {signatureUrl && (
+                      <img
+                        src={signatureUrl}
+                        alt="Signature"
+                        className="max-h-24 w-full object-contain border rounded-lg bg-white"
+                      />
+                    )}
+                  </div>
+
                   {errors.signatureUrl && (
                     <p className="text-xs text-red-500 mt-2 pl-1">
                       {errors.signatureUrl.message}
@@ -519,23 +515,42 @@ const onResubmit = async (
                     onChange={async (e) => {
                       const file = e.target.files?.[0];
                       if (!file) return;
+
                       try {
                         setUploadingAadhar(true);
+
                         const url = await uploadFile(
                           file,
                           "applications/aadhar",
                         );
+
                         setValue("aadharDocumentUrl", url, {
                           shouldValidate: true,
                         });
                       } catch (error) {
-                        alert("Aadhar upload failed");
+                        alert("Aadhaar upload failed");
                       } finally {
                         setUploadingAadhar(false);
                       }
                     }}
                     className="h-12 rounded-xl cursor-pointer"
                   />
+
+                  <div className="mt-4 h-32 flex items-center justify-center">
+                    {aadharDocumentUrl && (
+                      <div className="w-full h-24 flex items-center justify-center rounded-lg border border-dashed">
+                        <a
+                          href={aadharDocumentUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm font-medium text-blue-600 underline"
+                        >
+                          View Current Document
+                        </a>
+                      </div>
+                    )}
+                  </div>
+
                   {errors.aadharDocumentUrl && (
                     <p className="text-xs text-red-500 mt-2 pl-1">
                       {errors.aadharDocumentUrl.message}
@@ -549,12 +564,13 @@ const onResubmit = async (
           {/* FOOTER ACTION PANEL */}
           <div className="border-t pt-12 flex flex-col md:flex-row gap-8 md:items-center md:justify-between">
             <div className="space-y-2">
-              <p className="font-semibold text-xl">Save your application</p>
-              
+              <p className="font-semibold text-xl">Ready to Resubmit?</p>
+              <p className="text-muted-foreground">
+                Make sure all corrections have been completed before submitting your application again.
+              </p>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 shrink-0">
-       
               <Button
                 type="submit"
                 disabled={
@@ -565,11 +581,18 @@ const onResubmit = async (
                 }
                 className="h-13 px-8 rounded-2xl text-[15px] font-medium bg-secondary text-secondary-foreground hover:bg-secondary/80"
               >
-                
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Resubmitting...
+                  </> 
+                ) : (
+                  <>
+                    Resubmit Application
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </>
+                )}
               </Button>
-
-          
-             
             </div>
           </div>
         </form>
