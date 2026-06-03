@@ -96,7 +96,7 @@ export default function Page() {
       }
 
       if (role === "staff") {
-        router.replace("/applications");
+        router.replace("/staff/applications");
         return;
       }
 

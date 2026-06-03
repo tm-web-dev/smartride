@@ -1,3 +1,8 @@
+import { redirect } from "next/navigation";
+import { getServerSession } from "next-auth";
+
+import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+
 import dbConnect from "@/lib/dbConnect";
 import ApplicationModel from "@/models/application";
 
@@ -10,24 +15,51 @@ export default async function CardTemplatePage({
 }) {
   await dbConnect();
 
-  const { id } = await params;
+  const session =
+    await getServerSession(
+      authOptions
+    );
+
+  if (!session?.user) {
+    redirect("/unauthorized");
+  }
+
+  const { id } =
+    await params;
 
   const application =
-    await ApplicationModel.findById(id).lean();
+    await ApplicationModel.findById(
+      id
+    ).lean();
 
   if (!application) {
-    return (
-      <div className="p-10">
-        Application not found
-      </div>
-    );
+    redirect("/unauthorized");
+  }
+
+  const isOwner =
+    application.userId?.toString() ===
+    session.user.id;
+
+  const isStaff =
+    session.user.role ===
+      "staff" ||
+    session.user.role ===
+      "admin";
+
+  if (
+    !isOwner &&
+    !isStaff
+  ) {
+    redirect("/unauthorized");
   }
 
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-10">
       <SmartRideCard
         application={JSON.parse(
-          JSON.stringify(application)
+          JSON.stringify(
+            application
+          )
         )}
       />
     </div>

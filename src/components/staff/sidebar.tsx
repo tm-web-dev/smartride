@@ -16,7 +16,7 @@ export default function StaffSidebar() {
       <div className="space-y-2">
 
         <Link
-          href="/applications"
+          href="/staff/applications"
           className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted"
         >
           <FileText size={18} />
@@ -24,7 +24,7 @@ export default function StaffSidebar() {
         </Link>
 
         <Link
-          href="/history"
+          href="/staff/history"
           className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted"
         >
           <History size={18} />

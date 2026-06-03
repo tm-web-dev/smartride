@@ -39,11 +39,18 @@ export default function Navbar() {
 
           {status === "loading" ? null : session ? (
             <>
-              <Link href="/dashboard">
-                <Button variant="ghost">
-                  My Account
-                </Button>
-              </Link>
+             <Link
+  href={
+    session.user.role === "staff" ||
+    session.user.role === "admin"
+      ? "/staff/applications"
+      : "/dashboard"
+  }
+>
+  <Button variant="ghost">
+    My Account
+  </Button>
+</Link>
 
               <Button
                 variant="destructive"

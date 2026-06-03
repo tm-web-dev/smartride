@@ -15,9 +15,23 @@ export async function GET(
     const status =
       searchParams.get("status");
 
-    const query = status
-      ? { status }
-      : {};
+    const query: any = {};
+
+  
+
+
+if (status === "all") {
+  query.status = {
+    $in: [
+      "pending",
+      "approved",
+      "printed",
+      "dispatched",
+    ],
+  };
+} else if (status) {
+  query.status = status;
+}
 
     const applications =
       await ApplicationModel.find(
@@ -33,7 +47,10 @@ export async function GET(
       applications,
     });
   } catch (error) {
-    console.error(error);
+    console.error(
+      "APPLICATIONS_FETCH_ERROR:",
+      error
+    );
 
     return NextResponse.json(
       {
