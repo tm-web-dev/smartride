@@ -151,46 +151,79 @@ export default function DashboardPage() {
             </div>
 
             {/* DYNAMIC ACTION BUTTONS */}
-            <div className="pt-4 flex gap-3">
-              {isPaid ? (
-                <>
-                  {application.status === "rejected" ? (
-                    <Button asChild>
-                      <Link
-                        href={`/dashboard/application/edit/${application._id}`}
-                      >
-                        Edit & Resubmit Application
-                      </Link>
-                    </Button>
-                  ) : (
-                    <Button
-                      className="flex gap-2 text-sm h-10 rounded-xl"
-                      asChild
-                    >
-                      <Link
-                        href={`/api/application/download-pdf/${application._id}`}
-                        target="_blank"
-                      >
-                        <FileDown size={16} />
-                        Download Receipt PDF
-                      </Link>
-                    </Button>
-                  )}
-                </>
-              ) : (
-                /* Shown ONLY if the application's payment is still pending or failed */
-                <Button
-                  className="w-full gap-2 text-sm h-10 px-6 rounded-xl bg-primary text-primary-foreground font-medium"
-                  asChild
-                >
-                  <Link
-                    href={`/dashboard/application/payment/${application._id}`}
-                  >
-                    <CreditCard size={16} /> Proceed with Payment
-                  </Link>
-                </Button>
-              )}
-            </div>
+           {/* DYNAMIC ACTION BUTTONS */}
+<div className="pt-4 flex gap-3 flex-wrap">
+  {isPaid ? (
+    <>
+      {application.status === "rejected" ? (
+        <Button asChild>
+          <Link
+            href={`/dashboard/application/edit/${application._id}`}
+          >
+            Edit & Resubmit Application
+          </Link>
+        </Button>
+      ) : application.status === "approved" ||
+        application.status === "printed" ||
+        application.status === "dispatched" ||
+        application.status === "delivered" ? (
+        <>
+          <Button
+            className="flex gap-2"
+            asChild
+          >
+            <Link
+              href={`/api/card/${application._id}`}
+              target="_blank"
+            >
+              <FileDown size={16} />
+              Download SmartRide Card
+            </Link>
+          </Button>
+
+          <Button
+            variant="outline"
+            className="flex gap-2"
+            asChild
+          >
+            <Link
+              href={`/card-template/${application._id}`}
+              target="_blank"
+            >
+              <Eye size={16} />
+              Preview Card
+            </Link>
+          </Button>
+        </>
+      ) : (
+        <Button
+          className="flex gap-2"
+          asChild
+        >
+          <Link
+            href={`/api/application/download-pdf/${application._id}`}
+            target="_blank"
+          >
+            <FileDown size={16} />
+            Download Receipt PDF
+          </Link>
+        </Button>
+      )}
+    </>
+  ) : (
+    <Button
+      className="w-full gap-2 text-sm h-10 px-6 rounded-xl"
+      asChild
+    >
+      <Link
+        href={`/dashboard/application/payment/${application._id}`}
+      >
+        <CreditCard size={16} />
+        Proceed with Payment
+      </Link>
+    </Button>
+  )}
+</div>
           </div>
         </div>
       )}

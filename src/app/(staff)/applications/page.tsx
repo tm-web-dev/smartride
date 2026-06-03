@@ -129,21 +129,47 @@ const [
     </div>
   );
 
-      case "approved":
-        return (
-          <Button
-            size="sm"
-            onClick={() =>
-              updateStatus(
-                application._id,
-                "printed"
-              )
-            }
-          >
-            Mark Printed
-          </Button>
-        );
+     case "approved":
+  return (
+    <div className="flex gap-2">
 
+      <Button
+        variant="outline"
+        onClick={() =>
+          window.open(
+            `/card-template/${application._id}`,
+            "_blank"
+          )
+        }
+      >
+        View Card
+      </Button>
+
+      <Button
+        variant="outline"
+        onClick={() =>
+          window.open(
+  `/api/card/${application._id}`,
+  "_blank"
+)
+        }
+      >
+        Download PDF
+      </Button>
+
+      <Button
+        onClick={() =>
+          updateStatus(
+            application._id,
+            "printed"
+          )
+        }
+      >
+        Mark Printed
+      </Button>
+
+    </div>
+  );
       case "printed":
         return (
           <Button

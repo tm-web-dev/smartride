@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { Resend } from "resend";
+import { sendStatusEmail } from "@/helper/sendStatusEmail";
 
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 
@@ -181,6 +181,33 @@ console.log("remarks:", remarks);
     }
 
     await application.save();
+    try {
+  console.log(
+    "Sending status email..."
+  );
+
+  await sendStatusEmail({
+    email: application.email,
+    fullName:
+      application.fullName,
+    applicationNumber:
+      application.applicationNumber,
+    status:
+      application.status as any,
+    rejectionReason:
+      application.rejectionReason ||
+      undefined,
+  });
+
+  console.log(
+    "Status email sent successfully"
+  );
+} catch (emailError) {
+  console.error(
+    "EMAIL_SEND_ERROR:",
+    emailError
+  );
+}
 
 console.log(
   "Saved rejection reason:",

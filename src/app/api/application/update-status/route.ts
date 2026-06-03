@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-
 import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 
 import dbConnect from "@/lib/dbConnect";
-
 import ApplicationModel from "@/models/application";
+
+import mongoose from "mongoose";
 
 export async function PATCH(
   req: Request
@@ -19,12 +19,11 @@ export async function PATCH(
         authOptions
       );
 
-    if (!session) {
+    if (!session?.user) {
       return NextResponse.json(
         {
           success: false,
-          message:
-            "Unauthorized",
+          message: "Unauthorized",
         },
         { status: 401 }
       );
@@ -33,19 +32,15 @@ export async function PATCH(
     const role =
       session.user.role;
 
-    // Only staff
     if (
-      ![
-        "admin",
-        "approver",
-        "dispatcher",
-      ].includes(role)
+      !["admin", "staff"].includes(
+        role
+      )
     ) {
       return NextResponse.json(
         {
           success: false,
-          message:
-            "Forbidden",
+          message: "Forbidden",
         },
         { status: 403 }
       );
@@ -57,6 +52,7 @@ export async function PATCH(
     const {
       applicationId,
       status,
+      rejectionReason,
     } = body;
 
     if (
@@ -67,7 +63,31 @@ export async function PATCH(
         {
           success: false,
           message:
-            "Application ID and status required",
+            "Application ID and status are required",
+        },
+        { status: 400 }
+      );
+    }
+
+    const allowedStatuses =
+      [
+        "approved",
+        "rejected",
+        "printed",
+        "dispatched",
+        "delivered",
+      ];
+
+    if (
+      !allowedStatuses.includes(
+        status
+      )
+    ) {
+      return NextResponse.json(
+        {
+          success: false,
+          message:
+            "Invalid status",
         },
         { status: 400 }
       );
@@ -89,72 +109,111 @@ export async function PATCH(
       );
     }
 
-    // Approver permissions
+    const userObjectId =
+  new mongoose.Types.ObjectId(
+    session.user.id
+  );
+
+    /*
+     * APPROVED
+     */
     if (
-      role === "approver"
+      status === "approved"
     ) {
-      if (
-        ![
-          "approved",
-          "rejected",
-        ].includes(status)
-      ) {
-        return NextResponse.json(
-          {
-            success: false,
-            message:
-              "Invalid status",
-          },
-          {
-            status: 400,
-          }
-        );
-      }
+      const validFrom =
+        new Date();
 
-      // Set validity on approval
-      if (
-        status === "approved"
-      ) {
-        const validFrom =
-          new Date();
+      const validTill =
+        new Date();
 
-        const validTill =
-          new Date();
+      validTill.setFullYear(
+        validTill.getFullYear() +
+          1
+      );
 
-        validTill.setFullYear(
-          validTill.getFullYear() +
-            1
-        );
+      application.validFrom =
+        validFrom;
 
-        application.validFrom =
-          validFrom;
+      application.validTill =
+        validTill;
 
-        application.validTill =
-          validTill;
-      }
+      application.approvedBy =
+           userObjectId;
+      application.approvedAt =
+        new Date();
+
+      application.rejectionReason =
+        "";
+
+      application.rejectedBy =
+        undefined;
+
+      application.rejectedAt =
+        undefined;
     }
 
-    // Dispatcher permissions
+    /*
+     * REJECTED
+     */
     if (
-      role ===
-        "dispatcher" &&
-      status !==
-        "dispatched"
+      status === "rejected"
     ) {
-      return NextResponse.json(
-        {
-          success: false,
-          message:
-            "Dispatcher can only dispatch cards",
-        },
-        { status: 403 }
-      );
+      application.rejectionReason =
+        rejectionReason || "";
+
+      application.rejectedBy =
+  userObjectId;
+      application.rejectedAt =
+        new Date();
+    }
+
+    /*
+     * PRINTED
+     */
+    if (
+      status === "printed"
+    ) {
+      application.printedBy =
+        userObjectId;
+
+      application.printedAt =
+        new Date();
+    }
+
+    /*
+     * DISPATCHED
+     */
+    if (
+      status === "dispatched"
+    ) {
+     application.dispatchedBy =
+  userObjectId;
+
+      application.dispatchedAt =
+        new Date();
+    }
+
+    /*
+     * DELIVERED
+     */
+    if (
+      status === "delivered"
+    ) {
+      application.deliveredBy =
+  userObjectId;
+
+      application.deliveredAt =
+        new Date();
     }
 
     application.status =
       status;
 
     await application.save();
+
+    
+
+    
 
     return NextResponse.json(
       {
@@ -163,7 +222,9 @@ export async function PATCH(
           "Application updated successfully",
         application,
       },
-      { status: 200 }
+      {
+        status: 200,
+      }
     );
   } catch (error) {
     console.error(
@@ -177,7 +238,9 @@ export async function PATCH(
         message:
           "Internal server error",
       },
-      { status: 500 }
+      {
+        status: 500,
+      }
     );
   }
 }

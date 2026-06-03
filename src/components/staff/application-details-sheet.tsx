@@ -33,38 +33,33 @@ export default function ApplicationDetailsSheet({
   onApprove,
   onReject,
 }: Props) {
-  const [rejectDialogOpen, setRejectDialogOpen] =
-    useState(false);
+  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
 
-  const [rejectionReason, setRejectionReason] =
-    useState("");
+  const [rejectionReason, setRejectionReason] = useState("");
 
   if (!application) return null;
 
   return (
     <>
       {/* Main Review Modal */}
-      <Dialog
-        open={open}
-        onOpenChange={onOpenChange}
-      >
+      <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent
-  className="
-    !max-w-350!
+          className="
+    max-w-7xl
     w-[95vw]
     h-[92vh]
     overflow-y-auto
     p-0
   "
->
+        >
           <DialogHeader className="border-b px-8 py-6">
             <DialogTitle className="text-2xl font-bold">
               Application Review
             </DialogTitle>
 
             <DialogDescription>
-              Review applicant details and documents
-              before approving or rejecting.
+              Review applicant details and documents before approving or
+              rejecting.
             </DialogDescription>
           </DialogHeader>
 
@@ -95,52 +90,28 @@ export default function ApplicationDetailsSheet({
               </h3>
 
               <div className="grid md:grid-cols-2 gap-5">
-                <InfoCard
-                  label="Full Name"
-                  value={application.fullName}
-                />
+                <InfoCard label="Full Name" value={application.fullName} />
 
-                <InfoCard
-                  label="Email"
-                  value={application.email}
-                />
+                <InfoCard label="Email" value={application.email} />
 
-                <InfoCard
-                  label="Phone"
-                  value={application.phone}
-                />
+                <InfoCard label="Phone" value={application.phone} />
 
-                <InfoCard
-                  label="Gender"
-                  value={application.gender}
-                />
+                <InfoCard label="Gender" value={application.gender} />
 
                 <InfoCard
                   label="Date Of Birth"
-                  value={new Date(
-                    application.dateOfBirth
-                  ).toLocaleDateString()}
+                  value={new Date(application.dateOfBirth).toLocaleDateString()}
                 />
 
-                <InfoCard
-                  label="District"
-                  value={application.district}
-                />
+                <InfoCard label="District" value={application.district} />
 
                 <div className="md:col-span-2 border rounded-lg p-4">
-                  <p className="text-xs text-muted-foreground">
-                    Address
-                  </p>
+                  <p className="text-xs text-muted-foreground">Address</p>
 
-                  <p className="font-medium mt-1">
-                    {application.address}
-                  </p>
+                  <p className="font-medium mt-1">{application.address}</p>
                 </div>
 
-                <InfoCard
-                  label="PIN Code"
-                  value={application.pinCode}
-                />
+                <InfoCard label="PIN Code" value={application.pinCode} />
 
                 <InfoCard
                   label="Aadhaar Number"
@@ -151,15 +122,11 @@ export default function ApplicationDetailsSheet({
 
             {/* Documents */}
             <div className="border rounded-xl p-6">
-              <h3 className="text-xl font-semibold mb-6">
-                Documents
-              </h3>
+              <h3 className="text-xl font-semibold mb-6">Documents</h3>
 
               <div className="grid lg:grid-cols-2 gap-8">
                 <div>
-                  <p className="font-medium mb-3">
-                    Passport Photo
-                  </p>
+                  <p className="font-medium mb-3">Passport Photo</p>
 
                   <Image
                     src={application.photoUrl}
@@ -177,9 +144,7 @@ export default function ApplicationDetailsSheet({
                 </div>
 
                 <div>
-                  <p className="font-medium mb-3">
-                    Signature
-                  </p>
+                  <p className="font-medium mb-3">Signature</p>
 
                   <Image
                     src={application.signatureUrl}
@@ -200,19 +165,11 @@ export default function ApplicationDetailsSheet({
               </div>
 
               <div className="mt-8">
-                <p className="font-medium mb-3">
-                  Aadhaar Document
-                </p>
+                <p className="font-medium mb-3">Aadhaar Document</p>
 
-                <Button
-                  asChild
-                  variant="outline"
-                  className="w-full h-12"
-                >
+                <Button asChild variant="outline" className="w-full h-12">
                   <a
-                    href={
-                      application.aadharDocumentUrl
-                    }
+                    href={application.aadharDocumentUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -226,50 +183,36 @@ export default function ApplicationDetailsSheet({
           {/* Footer */}
           {application.status === "pending" && (
             <div className="sticky bottom-0 border-t bg-background p-6 flex justify-end gap-3">
-              <Button
-                variant="outline"
-                onClick={() =>
-                  onOpenChange(false)
-                }
-              >
+              <Button variant="outline" onClick={() => onOpenChange(false)}>
                 Close
               </Button>
 
               <Button
                 variant="destructive"
-                onClick={() =>
-                  setRejectDialogOpen(true)
-                }
+                onClick={() => setRejectDialogOpen(true)}
               >
                 Reject Application
               </Button>
 
               <Button
-  onClick={() => {
-    onApprove();
+                onClick={() => {
+                  onApprove();
 
-    onOpenChange(false);
-  }}
->
-  Approve Application
-</Button>
+                  onOpenChange(false);
+                }}
+              >
+                Approve Application
+              </Button>
             </div>
           )}
         </DialogContent>
       </Dialog>
 
       {/* Reject Dialog */}
-      <Dialog
-        open={rejectDialogOpen}
-        onOpenChange={
-          setRejectDialogOpen
-        }
-      >
-        <DialogContent>
+      <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
+        <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>
-              Reject Application
-            </DialogTitle>
+            <DialogTitle>Reject Application</DialogTitle>
 
             <DialogDescription>
               Enter the reason for rejection.
@@ -279,53 +222,37 @@ export default function ApplicationDetailsSheet({
           <Textarea
             placeholder="Enter rejection reason..."
             value={rejectionReason}
-            onChange={(e) =>
-              setRejectionReason(
-                e.target.value
-              )
-            }
+            onChange={(e) => setRejectionReason(e.target.value)}
           />
 
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() =>
-                setRejectDialogOpen(
-                  false
-                )
-              }
+              onClick={() => setRejectDialogOpen(false)}
             >
               Cancel
             </Button>
 
             <Button
-  variant="destructive"
-  onClick={() => {
-    if (
-      !rejectionReason.trim()
-    ) {
-      alert(
-        "Please enter a rejection reason"
-      );
-      return;
-    }
+              variant="destructive"
+              onClick={() => {
+                if (!rejectionReason.trim()) {
+                  alert("Please enter a rejection reason");
+                  return;
+                }
 
-    onReject(
-      rejectionReason
-    );
+                onReject(rejectionReason);
 
-    setRejectDialogOpen(
-      false
-    );
+                setRejectDialogOpen(false);
 
-    setRejectionReason("");
+                setRejectionReason("");
 
-    // Close main review modal
-    onOpenChange(false);
-  }}
->
-  Reject
-</Button>
+                // Close main review modal
+                onOpenChange(false);
+              }}
+            >
+              Reject
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -333,22 +260,12 @@ export default function ApplicationDetailsSheet({
   );
 }
 
-function InfoCard({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
+function InfoCard({ label, value }: { label: string; value: string }) {
   return (
     <div className="border rounded-lg p-4">
-      <p className="text-xs text-muted-foreground">
-        {label}
-      </p>
+      <p className="text-xs text-muted-foreground">{label}</p>
 
-      <p className="font-medium mt-1">
-        {value}
-      </p>
+      <p className="font-medium mt-1">{value}</p>
     </div>
   );
 }

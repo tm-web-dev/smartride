@@ -10,13 +10,13 @@ export default function StaffSidebar() {
   return (
     <div className="p-6">
       <h2 className="font-bold text-xl mb-8">
-        SmartRide Staff
+        SmartRide Staff Portal
       </h2>
 
       <div className="space-y-2">
 
         <Link
-          href="/staff/applications"
+          href="/applications"
           className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted"
         >
           <FileText size={18} />
@@ -24,7 +24,7 @@ export default function StaffSidebar() {
         </Link>
 
         <Link
-          href="/staff/history"
+          href="/history"
           className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted"
         >
           <History size={18} />
