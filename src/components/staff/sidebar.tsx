@@ -30,6 +30,13 @@ export default function StaffSidebar() {
           <History size={18} />
           Application History
         </Link>
+        <Link
+          href="/staff/password-reset"
+          className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted"
+        >
+          <History size={18} />
+          Change Password
+        </Link>
 
       </div>
     </div>

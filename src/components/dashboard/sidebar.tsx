@@ -6,6 +6,11 @@ import { Home, FileText, User, Lock } from "lucide-react";
 
 const menu = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
+ {
+    name: "Change Password",
+    href: "/dashboard/password-reset",
+    icon: Lock,
+  },
 ];
 
 export default function Sidebar() {

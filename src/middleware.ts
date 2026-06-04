@@ -40,7 +40,7 @@ export default withAuth(
         const pathname =
           req.nextUrl.pathname;
 
-        // User dashboard
+        // Any dashboard page
         if (
           pathname.startsWith(
             "/dashboard"
@@ -49,13 +49,10 @@ export default withAuth(
           return !!token;
         }
 
-        // Staff pages
+        // Any staff page
         if (
           pathname.startsWith(
-            "/staff/applications"
-          ) ||
-          pathname.startsWith(
-            "/staff/history"
+            "/staff"
           )
         ) {
           return (
@@ -75,8 +72,7 @@ export default withAuth(
 export const config = {
   matcher: [
     "/dashboard/:path*",
-    "/staff/applications/:path*",
-    "/staff/history/:path*",
+    "/staff/:path*",
     "/sign-in",
     "/sign-up",
   ],
