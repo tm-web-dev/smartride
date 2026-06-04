@@ -139,35 +139,55 @@ export default function Page() {
             />
 
             <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
+  control={form.control}
+  name="password"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Password</FormLabel>
 
-                  <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="Enter your password"
-                      {...field}
-                    />
-                  </FormControl>
+      <FormControl>
+        <Input
+          type="password"
+          placeholder="Enter your password"
+          {...field}
+        />
+      </FormControl>
 
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+      <FormMessage />
+    </FormItem>
+  )}
+/>
 
-            <Button className="w-full" type="submit" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="animate-spin mr-2" size={16} />
-                  Signing In...
-                </>
-              ) : (
-                "Login"
-              )}
-            </Button>
+<div className="flex justify-end">
+  <Link
+    href="/forgot-password"
+    className="
+      text-sm
+      text-primary
+      hover:underline
+    "
+  >
+    Forgot Password?
+  </Link>
+</div>
+
+<Button
+  className="w-full"
+  type="submit"
+  disabled={isSubmitting}
+>
+  {isSubmitting ? (
+    <>
+      <Loader2
+        className="animate-spin mr-2"
+        size={16}
+      />
+      Signing In...
+    </>
+  ) : (
+    "Login"
+  )}
+</Button>
           </form>
         </Form>
 

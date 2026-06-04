@@ -57,7 +57,18 @@ export async function GET(
         }
       );
     }
+console.log(
+  "SESSION USER:",
+  session.user
+);
 
+console.log(
+  "APPLICATION:",
+  {
+    userId: application.userId,
+    id: application._id,
+  }
+);
     const isOwner =
       application.userId?.toString() ===
       session.user.id;
@@ -67,7 +78,10 @@ export async function GET(
         "staff" ||
       session.user.role ===
         "admin";
-
+console.log({
+  isOwner,
+  isStaff,
+});
     if (
   !isOwner &&
   !isStaff
@@ -89,12 +103,11 @@ export async function GET(
       await browser.newPage();
 
     await page.goto(
-      `${process.env.NEXTAUTH_URL}/card-template/${id}`,
-      {
-        waitUntil:
-          "networkidle0",
-      }
-    );
+  `${process.env.NEXTAUTH_URL}/print/card-template/${id}`,
+  {
+    waitUntil: "networkidle0",
+  }
+);
 
     await page.addStyleTag({
       content: `

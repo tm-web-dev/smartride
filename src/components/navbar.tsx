@@ -11,7 +11,6 @@ export default function Navbar() {
 
   const pathname = usePathname();
 
-  // Hide navbar on receipt pages
   if (pathname.startsWith("/receipt")) {
     return null;
   }
@@ -22,14 +21,13 @@ export default function Navbar() {
 
         {/* LOGO */}
         <Link href="/" className="font-bold text-lg">
-          SmartBus
+          SmartRide
         </Link>
 
         {/* LINKS */}
         <nav className="hidden md:flex items-center gap-6 text-sm">
           <Link href="/">Home</Link>
           <Link href="/apply">Apply</Link>
-          <Link href="/track">Track</Link>
         </nav>
 
         {/* RIGHT SIDE */}

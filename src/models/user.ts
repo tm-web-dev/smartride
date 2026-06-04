@@ -85,7 +85,10 @@ const UserSchema = new Schema<User>(
         verifyToken: String,
         verifyTokenExpiry: Date,
 
-        resetPasswordToken: String,
+       resetPasswordToken: {
+  type: String,
+  index: true,
+},
 
         resetPasswordExpiry: Date,
 
