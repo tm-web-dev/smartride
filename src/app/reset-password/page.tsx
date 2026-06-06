@@ -1,9 +1,11 @@
 "use client";
 
+import { Suspense } from "react";
+
 import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 import { useForm } from "react-hook-form";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import * as z from "zod";
@@ -11,8 +13,6 @@ import * as z from "zod";
 import axios from "axios";
 
 import { useState } from "react";
-
-import { useRouter } from "next/navigation";
 
 import { toast } from "sonner";
 
@@ -33,9 +33,8 @@ import { Loader2 } from "lucide-react";
 
 import { resetPasswordSchema } from "@/schema/resetPasswordSchema";
 
-export default function ResetPasswordPage() {
-  const router =
-    useRouter();
+function ResetPasswordContent() {
+  const router = useRouter();
 
   const searchParams =
     useSearchParams();
@@ -197,5 +196,19 @@ export default function ResetPasswordPage() {
       </div>
 
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
+      <ResetPasswordContent />
+    </Suspense>
   );
 }
