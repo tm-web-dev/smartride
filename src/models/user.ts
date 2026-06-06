@@ -19,6 +19,7 @@ export interface User extends Document {
     verifyTokenExpiry?: Date;
     resetPasswordToken?: string;
     resetPasswordExpiry?: Date;
+    mustChangePassword: boolean;
 
     // Profile fields
     phone?: string;
@@ -91,6 +92,10 @@ const UserSchema = new Schema<User>(
 },
 
         resetPasswordExpiry: Date,
+        mustChangePassword: {
+  type: Boolean,
+  default: false,
+},
 
         // Profile (filled after login)
         phone: {

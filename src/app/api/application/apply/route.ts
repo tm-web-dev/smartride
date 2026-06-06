@@ -143,43 +143,45 @@ if (
 
     // Create application
     const application =
-      await ApplicationModel.create(
-        {
-          userId:
-            session.user.id,
+  await ApplicationModel.create({
+    userId:
+      session.user.id,
 
-          applicationNumber,
+    applicationNumber,
 
-          fullName:
-            session.user.name,
+    fullName:
+      session.user.name,
 
-          email:
-            session.user.email,
+    email:
+      session.user.email,
 
-          phone,
-          address,
-          district,
-          pinCode,
+    phone,
+    address,
+    district,
+    pinCode,
 
-          gender,
+    gender,
 
-          dateOfBirth,
+    dateOfBirth,
 
-          aadharNumber,
+    aadharNumber,
 
-          photoUrl,
+    photoUrl,
 
-          signatureUrl,
+    signatureUrl,
 
-          aadharDocumentUrl,
+    aadharDocumentUrl,
 
-          status:
-            "pending",
+    applicationFee:
+      settings?.cardFee ||
+      100,
 
-          isRenewal:
-            false,
-        }
-      );
+    status:
+      "pending",
+
+    isRenewal:
+      false,
+  });
 
     return NextResponse.json(
       {

@@ -43,23 +43,30 @@ export const authOptions: NextAuthOptions = {
             .trim();
 
         // Find user
-        const user =
-          await Usermodel.findOne({
-            email,
-          });
+const user =
+  await Usermodel.findOne({
+    email,
+  });
 
-        if (!user) {
-          throw new Error(
-            "User not found"
-          );
-        }
+if (!user) {
+  throw new Error(
+    "User not found"
+  );
+}
 
-        // Check email verification
-        if (!user.isVerified) {
-          throw new Error(
-            "EMAIL_NOT_VERIFIED"
-          );
-        }
+// Disabled by admin
+if (user.isDeleted) {
+  throw new Error(
+    "ACCOUNT_DISABLED"
+  );
+}
+
+// Email verification
+if (!user.isVerified) {
+  throw new Error(
+    "EMAIL_NOT_VERIFIED"
+  );
+}
 
         // Compare password
         const isPasswordCorrect =
@@ -76,39 +83,44 @@ export const authOptions: NextAuthOptions = {
 
         // Return user object
         return {
-          id: user._id.toString(),
+  id: user._id.toString(),
 
-          name: user.name,
+  name: user.name,
 
-          email: user.email,
+  email: user.email,
 
-          role: user.role as Role,
+  role: user.role as Role,
 
-          isVerified:
-            user.isVerified,
-        };
+  isVerified:
+    user.isVerified,
+
+  mustChangePassword:
+    user.mustChangePassword,
+};
       },
     }),
   ],
 
   callbacks: {
-    // JWT callback
     async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
+  if (user) {
+    token.id = user.id;
 
-        token.name = user.name;
+    token.name = user.name;
 
-        token.email = user.email;
+    token.email = user.email;
 
-        token.role = user.role;
+    token.role = user.role;
 
-        token.isVerified =
-          user.isVerified;
-      }
+    token.isVerified =
+      user.isVerified;
 
-      return token;
-    },
+    token.mustChangePassword =
+      user.mustChangePassword;
+  }
+
+  return token;
+},
 
     // Session callback
     async session({
@@ -130,6 +142,9 @@ export const authOptions: NextAuthOptions = {
 
         session.user.isVerified =
           token.isVerified as boolean;
+
+          session.user.mustChangePassword =
+  token.mustChangePassword as boolean;
       }
 
       return session;

@@ -19,6 +19,8 @@ export async function GET() {
       printed,
       dispatched,
       delivered,
+      revenueResult,
+      monthlyApplications,
     ] = await Promise.all([
       Usermodel.countDocuments({
         role: "user",
@@ -53,7 +55,107 @@ export async function GET() {
       ApplicationModel.countDocuments({
         status: "delivered",
       }),
+
+      // Revenue
+      ApplicationModel.aggregate([
+        {
+          $match: {
+            paymentStatus: "paid",
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            totalRevenue: {
+              $sum: "$applicationFee",
+            },
+          },
+        },
+      ]),
+
+      // Monthly Applications Trend
+      ApplicationModel.aggregate([
+        {
+          $group: {
+            _id: {
+              year: {
+                $year: "$createdAt",
+              },
+              month: {
+                $month: "$createdAt",
+              },
+            },
+            count: {
+              $sum: 1,
+            },
+          },
+        },
+        {
+          $sort: {
+            "_id.year": 1,
+            "_id.month": 1,
+          },
+        },
+      ]),
     ]);
+
+    const revenue =
+      revenueResult[0]
+        ?.totalRevenue || 0;
+
+    const statusChart = [
+      {
+        name: "Pending",
+        value: pending,
+      },
+      {
+        name: "Approved",
+        value: approved,
+      },
+      {
+        name: "Rejected",
+        value: rejected,
+      },
+      {
+        name: "Printed",
+        value: printed,
+      },
+      {
+        name: "Dispatched",
+        value: dispatched,
+      },
+      {
+        name: "Delivered",
+        value: delivered,
+      },
+    ];
+
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+
+    const monthlyChart =
+      monthlyApplications.map(
+        (item) => ({
+          month:
+            monthNames[
+              item._id.month - 1
+            ],
+          applications:
+            item.count,
+        })
+      );
 
     return NextResponse.json({
       success: true,
@@ -71,7 +173,12 @@ export async function GET() {
         dispatched,
         delivered,
 
-        revenue: 0,
+        revenue,
+      },
+
+      charts: {
+        statusChart,
+        monthlyChart,
       },
     });
   } catch (error) {

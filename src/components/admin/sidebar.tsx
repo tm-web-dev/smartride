@@ -38,7 +38,7 @@ const menu = [
 
   {
     name: "Change Password",
-    href: "/admin/password-reset",
+    href: "/admin/change-password",
     icon: Lock,
   },
 ];

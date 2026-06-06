@@ -5,6 +5,18 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 import {
   Users,
@@ -35,10 +47,25 @@ type Stats = {
   revenue: number;
 };
 
+type ChartData = {
+  statusChart: {
+    name: string;
+    value: number;
+  }[];
+
+  monthlyChart: {
+    month: string;
+    applications: number;
+  }[];
+};
 export default function AdminPage() {
   const [stats, setStats] =
     useState<Stats | null>(null);
-
+const [charts, setCharts] =
+  useState<ChartData>({
+    statusChart: [],
+    monthlyChart: [],
+  });
   const [loading, setLoading] =
     useState(true);
 const [applicationsEnabled, setApplicationsEnabled] =
@@ -104,8 +131,12 @@ const fetchSettings =
             );
 
           setStats(
-            res.data.stats
-          );
+  res.data.stats
+);
+
+setCharts(
+  res.data.charts
+);
         } catch (error) {
           console.error(error);
         } finally {
@@ -284,19 +315,129 @@ function Card({
     </div>
 
     {/* Analytics */}
-    <div className="border rounded-xl p-8 bg-card">
 
-      <h2 className="text-xl font-semibold">
-        Analytics & Reports
-      </h2>
+<div className="space-y-4">
 
-      <p className="text-muted-foreground mt-2">
-        Application Trends, Revenue Charts,
-        Date Filters and Excel Export
-        will be added in the next step.
-      </p>
+  <div>
+    <h2 className="text-lg font-semibold">
+      Analytics & Reports
+    </h2>
+
+    <div className="h-px bg-border mt-2" />
+  </div>
+
+  <div className="grid md:grid-cols-2 gap-6">
+
+    {/* Status Pie Chart */}
+
+    <div className="border rounded-xl p-6 bg-card">
+
+      <h3 className="font-semibold mb-4">
+        Application Status
+      </h3>
+
+      <div className="h-80">
+
+        <ResponsiveContainer
+          width="100%"
+          height="100%"
+        >
+
+          <PieChart>
+
+            <Pie
+              data={
+                charts.statusChart
+              }
+              dataKey="value"
+              nameKey="name"
+              outerRadius={100}
+              label
+            >
+
+              {charts.statusChart.map(
+                (
+                  entry,
+                  index
+                ) => (
+                  <Cell
+                    key={index}
+                    fill={[
+                      "#f59e0b",
+                      "#22c55e",
+                      "#ef4444",
+                      "#8b5cf6",
+                      "#3b82f6",
+                      "#14b8a6",
+                    ][index]}
+                  />
+                )
+              )}
+
+            </Pie>
+
+            <Tooltip />
+
+          </PieChart>
+
+        </ResponsiveContainer>
+
+      </div>
 
     </div>
+
+    {/* Monthly Applications */}
+
+    <div className="border rounded-xl p-6 bg-card">
+
+      <h3 className="font-semibold mb-4">
+        Monthly Applications
+      </h3>
+
+      <div className="h-80">
+
+        <ResponsiveContainer
+          width="100%"
+          height="100%"
+        >
+
+          <LineChart
+            data={
+              charts.monthlyChart
+            }
+          >
+
+            <CartesianGrid
+              strokeDasharray="3 3"
+            />
+
+            <XAxis
+              dataKey="month"
+            />
+
+            <YAxis />
+
+            <Tooltip />
+
+            <Line
+              type="monotone"
+              dataKey="applications"
+              stroke="#2563eb"
+              strokeWidth={3}
+            />
+
+          </LineChart>
+
+        </ResponsiveContainer>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+    
 
   </div>
 );

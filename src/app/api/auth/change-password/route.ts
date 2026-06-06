@@ -79,12 +79,15 @@ export async function POST(
       );
     }
 
-    user.password =
-      await hashPassword(
-        newPassword
-      );
+   user.password =
+  await hashPassword(
+    newPassword
+  );
 
-    await user.save();
+user.mustChangePassword =
+  false;
+
+await user.save();
 
     return NextResponse.json({
       success: true,

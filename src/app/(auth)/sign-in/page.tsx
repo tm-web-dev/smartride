@@ -60,23 +60,43 @@ export default function Page() {
       });
 
       // Handle errors
-      if (result?.error) {
-        let message = result.error;
+if (result?.error) {
+  let message = result.error;
 
-        if (result.error === "EMAIL_NOT_VERIFIED") {
-          message = "Please verify your email before logging in.";
-        }
+  if (
+    result.error ===
+    "EMAIL_NOT_VERIFIED"
+  ) {
+    message =
+      "Please verify your email before logging in.";
+  }
 
-        toast.error("Login failed", {
-          description: message,
-          position: "bottom-right",
-        });
+  if (
+    result.error ===
+    "ACCOUNT_DISABLED"
+  ) {
+    message =
+      "Your account has been disabled by the administrator. Please contact support.";
+  }
 
-        return;
-      }
+  toast.error(
+    "Login failed",
+    {
+      description: message,
+      position:
+        "bottom-right",
+    }
+  );
+
+  return;
+}
 
       // Get updated session
       const session = await getSession();
+      console.log(
+  "SESSION USER:",
+  session?.user
+);
 
       if (!session?.user) {
         toast.error("Failed to retrieve session");
@@ -89,6 +109,17 @@ export default function Page() {
 
       // RBAC Redirects
       const role = session.user.role;
+
+      if (
+  session.user
+    .mustChangePassword
+) {
+  router.replace(
+    "/staff/password-reset"
+  );
+
+  return;
+}
 
       if (role === "admin") {
         router.replace("/admin");

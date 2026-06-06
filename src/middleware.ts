@@ -5,8 +5,35 @@ export default withAuth(
   function middleware(req) {
     const token = req.nextauth.token;
 
+    console.log(
+      "TOKEN:",
+      token
+    );
+
     const pathname =
       req.nextUrl.pathname;
+
+    // FORCE STAFF TO CHANGE PASSWORD
+    if (
+      token?.role === "staff" &&
+      token?.mustChangePassword &&
+      pathname.startsWith(
+        "/staff"
+      ) &&
+      pathname !==
+        "/staff/password-reset"
+    ) {
+      console.log(
+        "FORCING PASSWORD RESET"
+      );
+
+      return NextResponse.redirect(
+        new URL(
+          "/staff/password-reset",
+          req.url
+        )
+      );
+    }
 
     // Prevent logged-in users from visiting login/signup
     if (
@@ -28,7 +55,9 @@ export default withAuth(
         token.role === "staff"
       ) {
         redirectUrl =
-          "/staff/applications";
+          token.mustChangePassword
+            ? "/staff/password-reset"
+            : "/staff/applications";
       }
 
       return NextResponse.redirect(
@@ -50,7 +79,7 @@ export default withAuth(
         const pathname =
           req.nextUrl.pathname;
 
-        // Admin pages
+        // Admin Pages
         if (
           pathname.startsWith(
             "/admin"
@@ -62,7 +91,7 @@ export default withAuth(
           );
         }
 
-        // Staff pages
+        // Staff Pages
         if (
           pathname.startsWith(
             "/staff"
@@ -76,7 +105,7 @@ export default withAuth(
           );
         }
 
-        // User dashboard pages
+        // User Pages
         if (
           pathname.startsWith(
             "/dashboard"

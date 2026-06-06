@@ -28,11 +28,13 @@ import {
 import { Input } from "@/components/ui/input";
 
 import { Button } from "@/components/ui/button";
+import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function ChangePasswordForm() {
   const [isSubmitting, setIsSubmitting] =
     useState(false);
-
+const router = useRouter();
   const form = useForm<
     z.infer<typeof changePasswordSchema>
   >({
@@ -47,46 +49,55 @@ export default function ChangePasswordForm() {
     },
   });
 
-  const onSubmit = async (
-    data: z.infer<
-      typeof changePasswordSchema
-    >
-  ) => {
-    try {
-      setIsSubmitting(true);
+ const onSubmit = async (
+  data: z.infer<
+    typeof changePasswordSchema
+  >
+) => {
+  try {
+    setIsSubmitting(true);
 
-      const response =
-        await axios.post(
-          "/api/auth/change-password",
-          {
-            currentPassword:
-              data.currentPassword,
+    const response =
+      await axios.post(
+        "/api/auth/change-password",
+        {
+          currentPassword:
+            data.currentPassword,
 
-            newPassword:
-              data.newPassword,
-          }
-        );
+          newPassword:
+            data.newPassword,
+        }
+      );
 
       toast.success(
-  "🔐 Password Changed",
-  {
-    description:
-      "Your password has been updated successfully.",
-    duration: 5000,
-  }
-);
+        "🔐 Password Changed",
+        {
+          description:
+            "Your password has been updated successfully. Please login again.",
+          duration: 5000,
+        }
+      );
 
       form.reset();
-    } catch (error: any) {
-      toast.error(
-        error?.response?.data
-          ?.message ||
-          "Failed to update password"
+
+      await signOut({
+        redirect: false,
+      });
+
+      router.replace(
+        "/sign-in"
       );
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+
+  } catch (error: any) {
+    toast.error(
+      error?.response?.data
+        ?.message ||
+        "Failed to update password"
+    );
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   return (
     <div className="max-w-xl mx-auto">

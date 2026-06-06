@@ -7,6 +7,7 @@ declare module "next-auth" {
     isVerified: boolean;
     role: Role;
     name: string;
+    mustChangePassword: boolean;
   }
 
   interface Session {
@@ -16,6 +17,7 @@ declare module "next-auth" {
       isVerified: boolean;
       role: Role;
       name: string;
+      mustChangePassword: boolean;
     };
   }
 }
@@ -27,5 +29,6 @@ declare module "next-auth/jwt" {
     isVerified: boolean;
     role: Role;
     name: string;
+    mustChangePassword: boolean;
   }
 }
