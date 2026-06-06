@@ -9,6 +9,7 @@ import dbConnect from "@/lib/dbConnect";
 import ApplicationModel from "@/models/application";
 
 import { applicationSchema } from "@/schema/applicationSchema";
+import SettingsModel from "@/models/settings";
 
 export async function POST(
   req: Request
@@ -47,6 +48,25 @@ export async function POST(
         { status: 403 }
       );
     }
+    const settings =
+  await SettingsModel.findOne();
+
+if (
+  settings &&
+  !settings.applicationsEnabled
+) {
+  return NextResponse.json(
+    {
+      success: false,
+      message:
+        settings.applicationDisabledMessage ||
+        "Applications are currently closed.",
+    },
+    {
+      status: 403,
+    }
+  );
+}
 
     const body =
       await req.json();

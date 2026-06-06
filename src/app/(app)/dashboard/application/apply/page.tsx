@@ -7,6 +7,7 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import { Loader2, UploadCloud, CheckCircle2, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 import {
   Select,
@@ -35,6 +36,15 @@ export default function ApplyPage() {
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [uploadingSignature, setUploadingSignature] = useState(false);
   const [uploadingAadhar, setUploadingAadhar] = useState(false);
+  const [
+  applicationsEnabled,
+  setApplicationsEnabled,
+] = useState(true);
+
+const [
+  applicationDisabledMessage,
+  setApplicationDisabledMessage,
+] = useState("");
 
   const {
     register,
@@ -50,6 +60,8 @@ export default function ApplyPage() {
   const signatureUrl = watch("signatureUrl");
   const aadharDocumentUrl = watch("aadharDocumentUrl");
 
+  
+
   // Sync disabled profile details directly from auth context session safely
   useEffect(() => {
     if (session?.user?.name)
@@ -57,7 +69,34 @@ export default function ApplyPage() {
     if (session?.user?.email)
       setValue("email", session.user.email, { shouldValidate: true });
   }, [session, setValue]);
+const router = useRouter();
 
+useEffect(() => {
+  const checkSettings = async () => {
+    try {
+      const res = await axios.get(
+        "/api/settings/public"
+      );
+
+      if (
+        !res.data.applicationsEnabled
+      ) {
+        toast.error(
+          res.data.applicationDisabledMessage ||
+            "Applications are currently closed."
+        );
+
+        router.replace(
+          "/dashboard"
+        );
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  checkSettings();
+}, [router]);
   // Reset payment access state if user updates fields after draft confirmation
   const basicFields = watch([
     "phone",

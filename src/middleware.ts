@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 export default withAuth(
   function middleware(req) {
     const token = req.nextauth.token;
+
     const pathname =
       req.nextUrl.pathname;
 
@@ -15,11 +16,20 @@ export default withAuth(
         pathname === "/sign-up"
       )
     ) {
-      const redirectUrl =
-        token.role === "staff" ||
+      let redirectUrl =
+        "/dashboard";
+
+      if (
         token.role === "admin"
-          ? "/staff/applications"
-          : "/dashboard";
+      ) {
+        redirectUrl =
+          "/admin";
+      } else if (
+        token.role === "staff"
+      ) {
+        redirectUrl =
+          "/staff/applications";
+      }
 
       return NextResponse.redirect(
         new URL(
@@ -40,16 +50,19 @@ export default withAuth(
         const pathname =
           req.nextUrl.pathname;
 
-        // Any dashboard page
+        // Admin pages
         if (
           pathname.startsWith(
-            "/dashboard"
+            "/admin"
           )
         ) {
-          return !!token;
+          return (
+            token?.role ===
+            "admin"
+          );
         }
 
-        // Any staff page
+        // Staff pages
         if (
           pathname.startsWith(
             "/staff"
@@ -63,6 +76,15 @@ export default withAuth(
           );
         }
 
+        // User dashboard pages
+        if (
+          pathname.startsWith(
+            "/dashboard"
+          )
+        ) {
+          return !!token;
+        }
+
         return true;
       },
     },
@@ -73,6 +95,7 @@ export const config = {
   matcher: [
     "/dashboard/:path*",
     "/staff/:path*",
+    "/admin/:path*",
     "/sign-in",
     "/sign-up",
   ],

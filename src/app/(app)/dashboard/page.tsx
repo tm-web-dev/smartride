@@ -16,22 +16,54 @@ import Link from "next/link";
 export default function DashboardPage() {
   const [application, setApplication] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [
+  applicationsEnabled,
+  setApplicationsEnabled,
+] = useState(true);
 
-  useEffect(() => {
-    const fetchApp = async () => {
-      try {
-        const res = await axios.get("/api/application/get");
-        setApplication(res.data?.application || null);
-      } catch (err) {
-        console.log("Error fetching application", err);
-        setApplication(null);
-      } finally {
-        setLoading(false);
-      }
-    };
+const [
+  applicationDisabledMessage,
+  setApplicationDisabledMessage,
+] = useState("");
 
-    fetchApp();
-  }, []);
+useEffect(() => {
+  const fetchApp = async () => {
+    try {
+      const [appRes, settingsRes] =
+        await Promise.all([
+          axios.get(
+            "/api/application/get"
+          ),
+          axios.get(
+            "/api/settings/public"
+          ),
+        ]);
+
+      setApplication(
+        appRes.data?.application ||
+          null
+      );
+
+      setApplicationsEnabled(
+        settingsRes.data
+          .applicationsEnabled
+      );
+
+      setApplicationDisabledMessage(
+        settingsRes.data
+          .applicationDisabledMessage
+      );
+    } catch (err) {
+      console.log(err);
+
+      setApplication(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchApp();
+}, []);
 
   const getStatusColor = (status: string, isPaid: boolean) => {
     if (!isPaid) return "bg-red-100 text-red-800 px-2.5 py-0.5 rounded-full";
@@ -79,12 +111,28 @@ export default function DashboardPage() {
             <p className="text-muted-foreground mt-2 mb-6 max-w-md">
               Start your concession card application process.
             </p>
-            <Link href="/dashboard/application/apply">
-              <Button className="flex gap-2">
-                <PlusCircle size={18} />
-                Apply Now
-              </Button>
-            </Link>
+            {
+  applicationsEnabled ? (
+    <Link href="/dashboard/application/apply">
+      <Button className="flex gap-2">
+        <PlusCircle size={18} />
+        Apply Now
+      </Button>
+    </Link>
+  ) : (
+    <div className="w-full max-w-md border border-amber-200 bg-amber-50 rounded-xl p-4 mt-4">
+
+      <h3 className="font-semibold text-amber-700">
+        Applications Closed
+      </h3>
+
+      <p className="text-sm text-amber-600 mt-2">
+        {applicationDisabledMessage}
+      </p>
+
+    </div>
+  )
+}
           </div>
         </div>
       ) : (
