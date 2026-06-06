@@ -2,7 +2,7 @@ import connectDB from "@/lib/dbConnect";
 import ApplicationModel from "@/models/application";
 
 import puppeteer from "puppeteer-core";
-import chromium from "@sparticuz/chromium-min";
+import chromium from "@sparticuz/chromium";
 
 export async function GET(
   request: Request,
