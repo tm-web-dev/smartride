@@ -1,4 +1,6 @@
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-core";
+import chromium from "@sparticuz/chromium";
+
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 
@@ -57,18 +59,7 @@ export async function GET(
         }
       );
     }
-console.log(
-  "SESSION USER:",
-  session.user
-);
 
-console.log(
-  "APPLICATION:",
-  {
-    userId: application.userId,
-    id: application._id,
-  }
-);
     const isOwner =
       application.userId?.toString() ===
       session.user.id;
@@ -78,24 +69,33 @@ console.log(
         "staff" ||
       session.user.role ===
         "admin";
-console.log({
-  isOwner,
-  isStaff,
-});
+
     if (
-  !isOwner &&
-  !isStaff
-) {
-  return NextResponse.redirect(
-    new URL(
-      "/unauthorized",
-      request.url
-    )
-  );
-}
+      !isOwner &&
+      !isStaff
+    ) {
+      return NextResponse.redirect(
+        new URL(
+          "/unauthorized",
+          request.url
+        )
+      );
+    }
+
+    const cardUrl = `${process.env.NEXTAUTH_URL}/print/card-template/${id}`;
+
+    console.log(
+      "Generating Card PDF:",
+      cardUrl
+    );
 
     const browser =
       await puppeteer.launch({
+        args: chromium.args,
+
+        executablePath:
+          await chromium.executablePath(),
+
         headless: true,
       });
 
@@ -103,11 +103,14 @@ console.log({
       await browser.newPage();
 
     await page.goto(
-  `${process.env.NEXTAUTH_URL}/print/card-template/${id}`,
-  {
-    waitUntil: "networkidle0",
-  }
-);
+      cardUrl,
+      {
+        waitUntil:
+          "networkidle0",
+
+        timeout: 60000,
+      }
+    );
 
     await page.addStyleTag({
       content: `
@@ -127,7 +130,9 @@ console.log({
     const pdf =
       await page.pdf({
         format: "A4",
+
         landscape: true,
+
         printBackground: true,
       });
 
