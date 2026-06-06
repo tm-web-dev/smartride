@@ -1,7 +1,8 @@
 import Application from "@/models/application";
-import razorpay from "@/lib/razorpay";
+import getRazorpay from "@/lib/razorpay";
 
 export async function POST(req: Request) {
+  const razorpay = getRazorpay();
   const { applicationId } =
     await req.json();
 
