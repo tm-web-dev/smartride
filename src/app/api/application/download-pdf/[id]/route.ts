@@ -1,9 +1,7 @@
 import connectDB from "@/lib/dbConnect";
-
 import ApplicationModel from "@/models/application";
 
 import puppeteer from "puppeteer-core";
-
 import chromium from "@sparticuz/chromium";
 
 export async function GET(
@@ -50,10 +48,8 @@ export async function GET(
     const browser =
   await puppeteer.launch({
     args: chromium.args,
-
     executablePath:
       await chromium.executablePath(),
-
     headless: true,
   });
 
@@ -65,7 +61,6 @@ export async function GET(
       {
         waitUntil:
           "networkidle0",
-
         timeout: 60000,
       }
     );
@@ -73,7 +68,6 @@ export async function GET(
     const pdf =
       await page.pdf({
         format: "A4",
-
         printBackground: true,
       });
 
@@ -85,7 +79,6 @@ export async function GET(
         headers: {
           "Content-Type":
             "application/pdf",
-
           "Content-Disposition":
             `attachment; filename=SmartRide-${application.applicationNumber}.pdf`,
         },
@@ -102,6 +95,10 @@ export async function GET(
         success: false,
         message:
           "Failed to generate PDF",
+        error:
+          error instanceof Error
+            ? error.message
+            : String(error),
       },
       {
         status: 500,
