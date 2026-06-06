@@ -27,7 +27,6 @@ export default function Navbar() {
         {/* LINKS */}
         <nav className="hidden md:flex items-center gap-6 text-sm">
           <Link href="/">Home</Link>
-          <Link href="/apply">Apply</Link>
         </nav>
 
         {/* RIGHT SIDE */}
