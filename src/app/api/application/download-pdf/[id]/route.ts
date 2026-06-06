@@ -1,8 +1,7 @@
 import connectDB from "@/lib/dbConnect";
 import ApplicationModel from "@/models/application";
 
-import puppeteer from "puppeteer-core";
-import chromium from "@sparticuz/chromium";
+import puppeteer from "puppeteer";
 
 export async function GET(
   request: Request,
@@ -45,13 +44,10 @@ export async function GET(
       receiptUrl
     );
 
-    const browser =
-  await puppeteer.launch({
-    args: chromium.args,
-    executablePath:
-      await chromium.executablePath(),
-    headless: true,
-  });
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
 
     const page =
       await browser.newPage();
